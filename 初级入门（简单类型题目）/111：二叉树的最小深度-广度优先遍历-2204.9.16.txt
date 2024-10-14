@@ -1,0 +1,50 @@
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+int minDepth(struct TreeNode* root) {
+    if(root == NULL){return 0;}
+    //参考二叉树层序遍历方法,统计到一个没有子节点的节点即可
+    //模拟队列
+    struct TreeNode* queue[8000];
+    int front = 0;
+    int rear = 0;
+    //创建选取的节点变量
+    struct TreeNode* node;
+    int depth = 0;//创建深度
+
+    queue[rear++] = root;
+    depth++;
+    //printf("%d" , queue[front]->val);
+    while(front < rear)
+    {
+        //先存储该层的长度
+        int len = rear - front;
+        //检查此层节点是否都具有子节点,具有就加入队列，不具有就返回
+        //取出节点
+        for(int i = 0 ; i < len ; i++)
+        {
+
+          node = queue[front++];
+          if(node->left != NULL)
+          {
+              queue[rear++] = node->left;
+          }
+          if(node->right != NULL)
+          {
+              queue[rear++] = node->right;
+          }
+          if((node->left == NULL) && (node->right == NULL))
+          {
+              return depth;
+          }
+        }
+
+        depth++;
+    }
+    return depth ;
+}

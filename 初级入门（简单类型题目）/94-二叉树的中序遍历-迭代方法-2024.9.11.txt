@@ -1,0 +1,38 @@
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+//中序遍历的顺序：先左子树，后根节点，最后右子树
+int* inorderTraversal(struct TreeNode* root, int* returnSize) {
+    *returnSize = 0;
+    //创建返回的数组
+    int* ans = (int*)malloc(sizeof(int) * 500);
+    //迭代遍历,创建栈
+    int top = 0;
+    struct TreeNode** stack = (struct TreeNode**)malloc(sizeof(struct TreeNode*) * 500);
+    while(root != NULL || top > 0)
+    {
+        //优先遍历所有左子树
+        while(root != NULL)
+        {
+            stack[top] = root;
+            top++;
+            root = root->left;
+        }
+        //当左子树为空时，退出，表示最后一个入栈的节点就是最后一个能遍历到的左子树
+        //打印这个节点
+        top--;
+        root = stack[top];
+        ans[(*returnSize)++] = root->val;
+        //之后再遍历这个节点右子树（因为这个节点的左子树是null，因此输出根节点后遍历右节点）
+        root = root->right;
+    }
+    return ans;
+}

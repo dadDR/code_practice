@@ -1,0 +1,80 @@
+//寻找有向图的其中一个拓补排序，使用广度优先搜索方法
+
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* findOrder(int numCourses, int** prerequisites, int prerequisitesSize, int* prerequisitesColSize, int* returnSize) {
+    int ** edges = (int**)malloc(sizeof(int*) * numCourses);//点i的邻接节点组，edges[i][j]表示节点i的第j个邻接节点
+    //初始化edges
+    for(int  i = 0 ; i < numCourses ; i++)
+    {
+        edges[i] = (int* )malloc(0);
+    }
+    int edgeColSize[numCourses];//用于存放领接节点数量的数组
+    //初始化
+    memset(edgeColSize , 0 , sizeof(edgeColSize));
+    //统计每个课程的入度，并存放于一个数组中
+    int indeg[numCourses];
+    memset(indeg , 0 , sizeof(indeg));
+    //建立图的领接表，设定关系为【b , a】 , 其中a->b
+    for(int i = 0 ; i < prerequisitesSize ; i++)
+    {
+        //取出节点
+        int a  = prerequisites[i][1];
+        int b =  prerequisites[i][0];
+        edgeColSize[a]++;//领接节点加一
+        //重新开辟空间
+        edges[a] = (int*)realloc(edges[a], sizeof(int) * edgeColSize[a]);
+        edges[a][edgeColSize[a] - 1] = b;
+        indeg[b]++;//b的入度加一
+    }
+
+    //广度优先搜索：创建一个队列
+    //先把目前入度为0的节点置入
+    int queue[numCourses];
+    int l = 0;//队列左指针
+    int r = -1;//队列右指针
+    for(int i = 0 ; i < numCourses ; i++)
+    {
+        if(indeg[i] == 0)
+        {
+            r++;
+            queue[r] = i;
+        }
+    }
+
+    int* result = (int*)malloc(sizeof(int) * numCourses);
+    int resultSize = 0;
+
+    int visited = 0;
+    //从左到右遍历队列
+    while(l <= r)
+    {
+        visited++;//查看节点数加一
+        int u = queue[l];
+        l++;
+        result[resultSize++] = u;
+        //如果去除了这个节点后，有另几个节点的入度为0，那么就将它们也顺序置入队列
+        for (int i = 0; i < edgeColSize[u]; i++) {
+            --indeg[edges[u][i]];
+            if (indeg[edges[u][i]] == 0) {
+                r++;
+                queue[r] = edges[u][i];
+            }
+        }
+    }
+
+    for (int i = 0; i < numCourses; i++) {
+        free(edges[i]);
+    }
+    free(edges);
+    if (visited == numCourses) {
+        *returnSize = numCourses;
+    } else {
+        *returnSize = 0;
+    }
+    return result;
+
+}
+

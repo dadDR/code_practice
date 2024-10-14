@@ -1,0 +1,72 @@
+
+bool valid;//判断是否存在拓补序列
+int** edges; //表示有向图的边edges[i][j] 表示节点i的第j个邻接节点
+int* visited;//代表节点是否被检查过
+int* edgeColSize;//每个节点的领接节点数量
+
+//深度优先搜索，u代表的是序号为u的节点
+void dfs(int u)
+{
+    visited[u] = 1;//已经检查过该节点
+    for(int i = 0; i < edgeColSize[u]; i++)
+    {
+        if (visited[edges[u][i]] == 0) {//如果这个关系没被检查过,就进入指向的节点接着检查
+            dfs(edges[u][i]);
+            if (!valid) {
+                return;
+            }
+        } else if (visited[edges[u][i]] == 1) {
+            valid = false;
+            return;
+        }
+    }
+    visited[u] = 2;//标记。表示正在检查中
+}
+
+bool canFinish(int numCourses, int** prerequisites, int prerequisitesSize, int* prerequisitesColSize) {
+    //课程表题目：选修某些课程前需要先修课程，因此可以使用有向图的拓补排序
+    //使用深度优先搜索
+    //最深的节点最先入栈（也就是最不可能指向其它节点的节点）
+    //可以省去栈，因为栈只用于存放完整的拓补排序，而这题是求是否存在拓补排序
+    valid = true;
+    edges = (int**)malloc(sizeof(int*) * numCourses);//给每个节点创建属于它的领接节点数组
+    for(int i = 0; i < numCourses ; i++)
+    {
+        edges[i] = (int*)malloc(0);//每个节点的领接表初始化为空
+    }
+    edgeColSize = (int*)malloc(sizeof(int) * numCourses);//初始化存放每个节点的邻接点数量的数组
+    memset(edgeColSize, 0, sizeof(int) * numCourses);//全部置空（初始化）
+    visited = (int*)malloc(sizeof(int) * numCourses);//初始化是否遍历节点的标记数组
+    memset(visited, 0, sizeof(int) * numCourses);
+    //遍历先修课程组,构建领接表，依赖关系是 prerequisites[i] = [b, a]，其中a为先修课程，所以关系表示为a->b
+    for(int i = 0 ; i < prerequisitesSize ; i++)
+    {
+        //先修课程组节点
+        int a = prerequisites[i][1];
+        int b = prerequisites[i][0];
+        edgeColSize[a]++;
+        //重新开辟大小
+        edges[a] = (int*)realloc(edges[a], sizeof(int) * edgeColSize[a]);
+        edges[a][edgeColSize[a] - 1] = b;//对应领接表的节点为b（a所指向的节点）
+    }
+    //对每个节点进行dfs，如果已经发现了环，就不用遍历了，直接返回即可
+    for(int i = 0 ; i < numCourses ; i++)
+    {
+        if(valid == false)
+        {
+            break;
+        }
+        if(!visited[i])
+        {
+            dfs(i);
+        }
+    }
+    for (int i = 0; i < numCourses; i++) {
+        free(edges[i]);
+    }
+    free(edges);
+    free(edgeColSize);
+    free(visited);
+    return valid;
+
+}

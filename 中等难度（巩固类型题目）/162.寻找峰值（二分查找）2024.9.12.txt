@@ -1,0 +1,67 @@
+对于此题有一个测试用例一直没过，准备9月13号再思考一回，
+测试用例如下：
+输入
+nums =
+[2,1]
+
+添加到测试用例
+标准输出
+1 , 1
+输出
+1
+预期结果
+0
+
+我怀疑是我的算法设计有问题，或者是边界条件没控制好。
+
+int findPeakElement(int* nums, int numsSize) {
+    //题意：寻找峰值元素的下标所在
+    //使用二分查找,寻找到任意一个峰值即可 , 依据题意，可以发现中间值有三种可能，一种是它本身就是峰值
+    //另两种是左边的大于中间，那么就需要向左继续二分查找，如果右边大于中间，就向右找，如果左右都大于中间
+    //那么就先去找最大的
+    //考虑到极端情况
+    if(numsSize <= 1)
+    {
+        //printf("special\r\n");
+        return 0 ;
+    }
+    int ans = 0;//最大值
+    int ans_sub = 0; //最大值的下标
+    int left;//左下标
+    int right;//右下标
+    //对左下标和右下标进行初始化
+    left = 0;
+    //printf("%d\r\n" , numsSize);
+    right = numsSize - 1;
+    //进行二分查找
+    while(left < right)
+    {
+        int mid = ((right - left)/2) + left;//中间的下标
+        //获取这个时候需要的左下标
+        int leftindex = mid - 1 < 0 ? 0 : mid - 1;
+        //获取这个时候需要的右下标
+        int rightindex = mid + 1 >= numsSize ? (numsSize - 1) : mid + 1;
+        //判断是否为峰值
+        if(nums[mid] > nums[leftindex] && nums[mid] > nums[rightindex])
+        {
+            ans_sub = mid;
+            return ans_sub;
+        }
+        else if(nums[mid] >= nums[leftindex])
+        {
+            left = mid + 1;
+            continue;
+        }
+        else
+        {
+            right = mid - 1;
+            continue;
+        }
+
+    }
+    ans_sub = right < 0 ? left : (nums[left] > nums[right] ? left : right);
+    //ans_sub = nums[left] > nums[right] ? left : right;
+    //printf("%d , %d" , left , right);
+    return ans_sub;
+}
+    
